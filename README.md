@@ -5,37 +5,57 @@ Returns an object constructed using slices of an exisitng object.
 Built on of the lodash.clondeepwith package.<br />
 
 **Install:**\
-npm i -S clone-total\
-Alternate: npm i -S @webkrafters/clone-total
-
-## Regarding Class Instances Values
-All cloned properties and values which are Instances of non-native classes not implementing either the `clone` or the `cloneNode` methods may not be cloneable. Such instances are retured uncloned. To clone these, a `customizer` argument function may be supplied. Please see **Extended** example below.
+npm i -S data-distillery\
+Alternate: npm i -S @webkrafters/data-distillery
 
 ### Example
 
 ```jsx
-import clone from 'clone-total'; 
+import distill from 'data-distillery'; 
 
-clone( object ); // returns cloned object
-```
-
-### Example (Extended)
-
-```jsx
-
-function customizer(
-    value : unknown,
-    key? : number | string,
-    object? : T,
-    stack? : unknown
-) {
-    if( /* <your fallback condition> */ ) {
-        return yourCloneAlgorithm( value, key, object, stack );
-    }
-    // or allow the normal course to continue.
+const source = {
+    address: {
+        city: 'Test City',
+        state: 'My Province'
+    },
+    matrix: [
+        [ [ 0, 3, 1 ], [ 4, 0, 3 ] ],
+        [ [ 4, 1, 9 ], [ 7, 4, 9 ] ],
+        [ [ 8, 7, 3 ], [ 0, 3, 1 ] ]
+    ],
+    registered: {
+        time: new Date(),
+        timezone: 'Eastern Time'
+    },
+    tags: [ 'test', 'foo', 'bar', 'baz', 'boo', 'tap', 'bak' ]
 };
 
-clone( object, customizer );
+distill( source, [
+    'matrix.1.1',
+    'matrix[2].0',
+    'address',
+    'registered.timezone',
+    'tags[4]',
+    'matrix[0][1]'
+]);
+// returns distilled object => {
+//   matrix: {
+//     0: { 1: [ 4, 0, 3 ] },
+//     1: { 1: [ 7, 4, 9 ] },
+//     2: { 0: [ 8, 7, 3 ] }
+//   },
+//   address: {
+//     city: 'Test City',
+//     state: 'My Province'
+//   },
+//   registered: {
+//     timezone: 'Eastern Time'
+//   },
+//   tags: {
+//     4: 'boo'
+//   }
+// }
+
 ```
 
 # License
