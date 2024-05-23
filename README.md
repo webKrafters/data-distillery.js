@@ -2,8 +2,6 @@
 
 Returns an object constructed using slices of an exisitng object.
 
-Built on of the lodash.clondeepwith package.<br />
-
 **Install:**\
 npm i -S data-distillery\
 Alternate: npm i -S @webkrafters/data-distillery
