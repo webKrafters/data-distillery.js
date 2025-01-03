@@ -28,6 +28,8 @@ const source = {
     tags: [ 'test', 'foo', 'bar', 'baz', 'boo', 'tap', 'bak' ]
 };
 
+// DEFAULT USAGE
+// -------------
 distill( source, [
     'matrix.1.1',
     'matrix[2].0',
@@ -55,6 +57,40 @@ distill( source, [
 // }
 
 ```
+
+### An Optional Parameter 3:
+This function also accepts an optional third parameter which may either be
+<ul>
+    <li>a transformation function or </li>
+    <li>an options object</li>
+</ul>
+<p>
+The transformation function is of the the type:<br />
+<code>&lt;T&gt;({ value } : PropertyInfo) : T => value;</code><br />
+This function is called on all values mapping to the provided property paths listed in the second argument.
+</p>
+<p>The options object is of the type:</p>
+
+<pre>
+{
+    tranform?: &lt;T&gt;({ value } : PropertyInfo) : T => value;</code>
+    arrays?: {
+        preserve?: boolean // defaults to false
+        sparse?: boolean // defaults to true
+    }
+}
+</pre>
+<ol>
+    <li>The options.transform serves the same function as aforedescribed transformation.</li>
+    <li>function
+</p>
+
+
+</p>
+
+
+
+
 
 # License
 MIT

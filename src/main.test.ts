@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, test } from '@jest/globals';
+import { beforeAll, describe, expect, jest, test } from '@jest/globals';
 
 import * as utils from './main';
 
@@ -104,7 +104,7 @@ describe( 'utils module', () => {
 				'matrix.0.2'
 			]);
 		});
-		test( 'returns a subset of the source pbject matching arranged property paths', () => {
+		test( 'returns a subset of the source object matching arranged property paths', () => {
 			expect( utils.mapPathsToObject( source, propertyPaths ) ).toEqual({
 				address: source.address,
 				friends: { 1: source.friends[ 1 ] },
@@ -121,7 +121,7 @@ describe( 'utils module', () => {
 			});
 		} );
 		test(
-			'returns a subset of the source object following setstate `change` object rules for array/indexed-object mutations',
+			'returns a subset of the source object in a natural object heirarchical format',
 			() => expect( utils.mapPathsToObject( source, [ 'matrix.0.1', 'matrix.0.2' ] ) ).toEqual({
 				matrix: {
 					0: {
@@ -149,8 +149,134 @@ describe( 'utils module', () => {
 				.toEqual({ matrix: { 1: matrix11, 2: matrix20 } });
 			expect( utils.mapPathsToObject( source, [ 'matrix[2].0', 'matrix.1.1' ] ) )
 				.toEqual({ matrix: { 1: matrix11, 2: matrix20 } });
-			expect( utils.mapPathsToObject( source, [ 'matrix.1.1' ] ) ).toEqual({ matrix: { 1: matrix11 }	});
-			expect( utils.mapPathsToObject( source, [ 'matrix[2].0' ] ) ).toEqual({	matrix: { 2: matrix20 }	});
+			expect( utils.mapPathsToObject( source, [ 'matrix.1.1' ] ) )
+				.toEqual({ matrix: { 1: matrix11 }	});
+			expect( utils.mapPathsToObject( source, [ 'matrix[2].0' ] ) )
+				.toEqual({ matrix: { 2: matrix20 }	});
 		} );
+		describe( 'Third parameter', () => {
+			test( 'is optional: does not preserve array types (uses indexed object instead', () => {
+				source = createSourceData();
+				source.matrix = [
+					[ [ 0, 3, 1 ], [ 4, 0, 3 ] ],
+					[ [ 4, 1, 9 ], [ 7, 4, 9 ] ],
+					[ [ 8, 7, 3 ], [ 0, 3, 1 ] ]
+				];
+				const matrix11 = { 1: source.matrix[ 1 ][ 1 ] };
+				const matrix20 = { 0: source.matrix[ 2 ][ 0 ] };
+				expect( utils.mapPathsToObject( source, [ 'matrix.1.1', 'matrix[2].0' ] ) )
+					.toEqual({ matrix: { 1: matrix11, 2: matrix20 } });
+				expect( utils.mapPathsToObject( source, [ 'matrix[2].0', 'matrix.1.1' ] ) )
+					.toEqual({ matrix: { 1: matrix11, 2: matrix20 } });
+				expect( utils.mapPathsToObject( source, [ 'matrix.1.1' ] ) )
+					.toEqual({ matrix: { 1: matrix11 }	});
+				expect( utils.mapPathsToObject( source, [ 'matrix[2].0' ] ) )
+					.toEqual({ matrix: { 2: matrix20 }	});
+			});
+			test( 'accepts function type for transforming values at property paths', () => {
+				const transformMock = jest.fn() as utils.Transform;
+				utils.mapPathsToObject( createSourceData(), [ 'company', 'tags' ], transformMock );
+				expect( transformMock ).toHaveBeenCalledTimes( 2 );
+			});
+			describe( 'accepts an options object', () => {
+				test( 'accepts a "transform" property to apply to values at property paths', () => {
+					const transformMock = jest.fn() as utils.Transform;
+					utils.mapPathsToObject( createSourceData(), [ 'company', 'tags' ], { transform: transformMock });
+					expect( transformMock ).toHaveBeenCalledTimes( 2 );
+				} );
+				test( 'accepts an "arrays.preserve" property to preserve array types and indexing', () => {
+					source = createSourceData();
+					source.matrix = [
+						[ [ 0, 3, 1 ], [ 4, 0, 3 ] ],
+						[ [ 4, 1, 9 ], [ 7, 4, 9 ] ],
+						[ [ 8, 7, 3 ], [ 0, 3, 1 ] ]
+					];
+					const matrix11 = { 1: source.matrix[ 1 ][ 1 ] };
+					const matrix20 = { 0: source.matrix[ 2 ][ 0 ] };
+					expect( utils.mapPathsToObject(
+						source,
+						[ 'matrix.1.1', 'matrix[2].0' ],
+						{ arrays: { preserve: true } }
+					) ).toEqual({ matrix: [ undefined, [ undefined, matrix11[ 1 ] ], [ matrix20[ 0 ] ] ] });
+					expect( utils.mapPathsToObject(
+						source,
+						[ 'matrix[2].0', 'matrix.1.1' ],
+						{ arrays: { preserve: true } }
+					) ).toEqual({ matrix: [ undefined, [ undefined, matrix11[ 1 ] ], [ matrix20[ 0 ] ] ] });
+					expect( utils.mapPathsToObject(
+						source,
+						[ 'matrix.1.1' ],
+						{ arrays: { preserve: true } }
+					) ).toEqual({ matrix: [ undefined, [ undefined, matrix11[ 1 ] ] ] });
+					expect( utils.mapPathsToObject(
+						source,
+						[ 'matrix[2].0' ],
+						{ arrays: { preserve: true } }
+					) ).toEqual({ matrix: [ undefined, undefined, [ matrix20[ 0 ] ] ]	});
+				} );
+				describe( 'the "arrays.sparse" property', () => {
+					test.only( 'when "false" removes all unset elements in all arrays in the returned data', () => {
+						source = createSourceData();
+						source.matrix = [
+							[ [ 0, 3, 1 ], [ 4, 0, 3 ] ],
+							[ [ 4, 1, 9 ], [ 7, 4, 9 ] ],
+							[ [ 8, 7, 3 ], [ 0, 3, 1 ] ]
+						];
+						const matrix11 = { 1: source.matrix[ 1 ][ 1 ] };
+						const matrix20 = { 0: source.matrix[ 2 ][ 0 ] };
+						expect( utils.mapPathsToObject(
+							source,
+							[ 'matrix.1.1', 'matrix[2].0' ],
+							{ arrays: { preserve: true, sparse: false } }
+						) ).toEqual({ matrix: [ [ matrix11[ 1 ] ], [ matrix20[ 0 ] ] ] });
+						expect( utils.mapPathsToObject(
+							source,
+							[ 'matrix[2].0', 'matrix.1.1' ],
+							{ arrays: { preserve: true, sparse: false } }
+						) ).toEqual({ matrix: [ [ matrix11[ 1 ] ], [ matrix20[ 0 ] ] ] });
+						expect( utils.mapPathsToObject(
+							source,
+							[ 'matrix.1.1' ],
+							{ arrays: { preserve: true, sparse: false } }
+						) ).toEqual({ matrix: [ [ matrix11[ 1 ] ] ] });
+						expect( utils.mapPathsToObject(
+							source,
+							[ 'matrix[2].0' ],
+							{ arrays: { preserve: true, sparse: false } }
+						) ).toEqual({ matrix: [ [ matrix20[ 0 ] ] ]	});
+					} );
+					test( 'has no effect when the "arrays.preserve" property is inactive', () => {
+						source = createSourceData();
+						source.matrix = [
+							[ [ 0, 3, 1 ], [ 4, 0, 3 ] ],
+							[ [ 4, 1, 9 ], [ 7, 4, 9 ] ],
+							[ [ 8, 7, 3 ], [ 0, 3, 1 ] ]
+						];
+						const matrix11 = { 1: source.matrix[ 1 ][ 1 ] };
+						const matrix20 = { 0: source.matrix[ 2 ][ 0 ] };
+						expect( utils.mapPathsToObject(
+							source,
+							[ 'matrix.1.1', 'matrix[2].0' ],
+							{ arrays: { preserve: false, sparse: false } }
+						) ).toEqual({ matrix: { 1: matrix11, 2: matrix20 } });
+						expect( utils.mapPathsToObject(
+							source,
+							[ 'matrix[2].0', 'matrix.1.1' ],
+							{ arrays: { preserve: false, sparse: false } }
+						) ).toEqual({ matrix: { 1: matrix11, 2: matrix20 } });
+						expect( utils.mapPathsToObject(
+							source,
+							[ 'matrix.1.1' ],
+							{ arrays: { preserve: false, sparse: false } }
+						) ).toEqual({ matrix: { 1: matrix11 }	});
+						expect( utils.mapPathsToObject(
+							source,
+							[ 'matrix[2].0' ],
+							{ arrays: { preserve: false, sparse: false } }
+						) ).toEqual({ matrix: { 2: matrix20 }	});
+					} );
+				} );
+			} );
+		});
 	} );
 } );

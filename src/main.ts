@@ -1,8 +1,16 @@
-import type { PropertyInfo } from '@webkrafters/get-property';
+import type { KeyType, PropertyInfo } from '@webkrafters/get-property';
 
 import get from '@webkrafters/get-property';
 
 export type Transform = <T>(property : PropertyInfo) => T;
+
+export interface Options {
+	arrays?: {
+		preserve?: boolean;
+		sparse?: boolean;
+	};
+	transform?: Transform;
+};
 
 const BRACKET_EXP = /\[([0-9]+)\]/g;
 const BRACKET_OPEN = /\.?\[/g;
@@ -58,14 +66,121 @@ function stringToDotPath( path : string ) : string {
 }
 
 /**
+ * restores the array properties in destination object to match their source types
+ * 
+ * Attention: mutates the dest object value
+ * */
+const restoreDestinationArrays = (() => {
+	function restoring(
+		source: unknown,
+		dest: unknown,
+		key: KeyType
+	): void {
+		const destVal = dest[ key ];
+		if( !Array.isArray[ destVal ] &&
+			Array.isArray( source[ key ] )
+		) {
+			const localArr = [];
+			for( const iK in destVal ) { localArr[ +iK ] = destVal[ iK ] }
+			dest[ key ] = localArr;
+		}
+		restore( source[ key ], dest[ key ] );
+	}
+	const restore = <T>(
+		source: T,
+		dest: Record<string, unknown>
+	) : void => {
+		if( Array.isArray( dest ) ) {
+			for( let di = 0, len = dest.length; di < len; di++ ) {
+				if( di in dest ) { restoring( source, dest, di ) }
+			}
+		}
+		try {
+			for( const dk in dest ) { restoring( source, dest, dk ) }
+		} catch( e ) {}
+	}
+	return restore;
+})();
+
+function buildOpts( opts : Transform | Options ) {
+	const _opts = {
+		preserveArrays: false,
+		allowSparseArrays: true,
+		transform: defaultFormatValue
+	};
+	if( typeof opts === 'function' ) {
+		return { ..._opts, transform: opts };
+	}
+	if( typeof opts.arrays !== 'undefined' && opts.arrays !== null ) {
+		_opts.preserveArrays = opts.arrays.preserve ?? _opts.preserveArrays;
+		_opts.allowSparseArrays = opts.arrays.sparse ?? _opts.allowSparseArrays;
+	}
+	_opts.transform = opts.transform || _opts.transform;
+	return _opts;
+}
+
+
+
+// @todo: condenseArraysIn(...) test cases.
+//		  `````````````````````````````````
+// const a = [ , , , 6, undefined, , 5, , , null, 7 ]; // => [ 6, undefined, 5, null, 7 ]
+// const a = [ , , , , , , , , , , , ]; // => []
+// const a = []; // => []
+// const a = [ , , , , undefined, , , , , null, , , , ]; // => [ undefined, null ]
+// const a = [ 6, undefined, , 5, , , null, 7, , , ]; // => [ 6, undefined, 5, null, 7 ]
+// const a = [ 6, undefined, , 5, , , null, 7]; // => [ 6, undefined, 5, null, 7 ]
+// const a = [ 6, undefined, 5, null, 7 ]; // => [ 6, undefined, 5, null, 7 ]
+// const a = [ 6, 5, 7 ]; // => [ 6, 5, 7 ]
+// const a = [6, 5, 7, , { a: 22, d: [ 2, , 33 ]}, [ , 'one' ] ]; // => [ 6, 5, 7, Object { a: 22, d: [ 2, undefined, 33 ] }, [ undefined, 'one' ] ]
+// const a = [ , , , 6, undefined, , 5, , , null, 7, , , ]; // => [ 6, undefined, 5, null, 7 ]
+
+/**
+ * purges all empty elements from array properties in destination object
+ * 
+ * Attention: mutates the dest object value
+ * */
+const condenseArraysIn = (() => { 
+	function condensing( arr : [] ) {
+		for( let i = arr.length, numRemovables = 0, isEmpty = false; i--; ) {
+			isEmpty = !( i in arr );
+			if( isEmpty ){ numRemovables++ }
+			if( numRemovables === 0 ) { continue }
+			if( i === 0 ) {
+				arr.splice( isEmpty ? i : i + 1, numRemovables );
+				continue;
+			}
+			if( !isEmpty ) {
+				arr.splice( i + 1, numRemovables );
+				numRemovables = 0;
+			}
+		}
+	}
+	function condense( dest: unknown ) {
+		if( Array.isArray( dest ) ) {
+			const destArr = dest as [];
+			condensing( destArr );
+			for( let di = destArr.length; di--; ) { condense( destArr[ di ] ) }
+			return;
+		}
+		try {
+			for( const dk in ( dest as {} ) ) { condense( dest[ dk ] ) }
+		} catch( e ) {}
+	}
+	return condense;
+})();
+
+/**
  * Pulls propertyPath values from state and
  * compiles them into a partial state object.
  */
+export function mapPathsToObject<T>( source: T, propertyPaths: Array<string>, options?: Options ) : Partial<T>;
+export function mapPathsToObject<T>( source: T, propertyPaths: Array<string>, options?: Transform ) : Partial<T>;
 export function mapPathsToObject<T>(
 	source : T,
 	propertyPaths : Array<string>,
-	transform : Transform = defaultFormatValue
+	options: Options|Transform = defaultFormatValue
 ) : Partial<T> {
+	const { preserveArrays, allowSparseArrays, transform } = buildOpts( options );
 	const paths = [];
 	for( const path of propertyPaths ) { paths.push( stringToDotPath( path ) ) }
 	const dest = {};
@@ -87,6 +202,11 @@ export function mapPathsToObject<T>(
 			if( !( token in object ) ) { object[ token ] = {} }
 			object = object[ token ];
 		}
+	}
+
+	if( preserveArrays ) {
+		restoreDestinationArrays( source, dest );
+		!allowSparseArrays && condenseArraysIn( dest );
 	}
 	return dest;
 }
