@@ -81,8 +81,8 @@ This function is called on all values mapping to the provided property paths lis
 }
 </pre>
 
-<div ALIGN="CENTER" style="border-top:1px solid #bbb; padding:4px; font-size:21px;">
-    Available  Options
+<div ALIGN="CENTER" PADDING="4px" style="border-top:1px solid #bbb; padding:4px;">
+    <font size="5">Available  Options</font>
 </div>
 
 <table style="border:0 solid #bbb; border-width:1px 0;">
@@ -108,8 +108,10 @@ This function is called on all values mapping to the provided property paths lis
     </tbody>
 </table>
 
-<div ALIGN="CENTER" style="padding:4px; font-size:21px;">
-    Available <code>arrays</code> Options
+<div ALIGN="CENTER"  PADDING="4px" style="padding:4px;">
+    <font size="5">
+        Available <code>arrays</code> Options
+    </font>
 </div>
 <table style="border:0 solid #bbb; border-width:1px 0;">
     <tbody>
