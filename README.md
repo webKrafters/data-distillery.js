@@ -95,7 +95,7 @@ This function is called on all values mapping to the provided property paths lis
             <td style="font-size:20px; text-align:left">Description</td>
         </tr>
         <tr>
-            <td style="vertical-align:top">
+            <td style="VALIGN="TOP"">
                 <code>arrays</code>
             </td>
             <td>
@@ -103,7 +103,7 @@ This function is called on all values mapping to the provided property paths lis
             </td>
         </tr>
         <tr>
-            <td style="vertical-align:top">
+            <td VALIGN="TOP">
                 <code>transform</code>
             </td>
             <td>serves the same function as the afore-described transformation function.</td>
@@ -126,7 +126,7 @@ This function is called on all values mapping to the provided property paths lis
             <td style="font-size:20px; text-align:left">Description</td>
         </tr>
         <tr>
-            <td style="vertical-align:top;">
+            <td VALIGN="TOP">
                 <code>preserve</code>
             </td>
             <td>
@@ -135,7 +135,7 @@ This function is called on all values mapping to the provided property paths lis
             </td>
         </tr>
         <tr>
-            <td style="vertical-align:top">
+            <td VALIGN="TOP">
                 <code>sparse</code>
             </td>
             <td>
