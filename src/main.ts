@@ -76,6 +76,8 @@ const restoreDestinationArrays = (() => {
 		dest: unknown,
 		key: KeyType
 	): void {
+		// istanbul ignore next
+		if( !( key in ( source as {} ) ) ) { return }
 		const destVal = dest[ key ];
 		if( !Array.isArray[ destVal ] &&
 			Array.isArray( source[ key ] )
@@ -108,14 +110,15 @@ function buildOpts( opts : Transform | Options ) {
 		allowSparseArrays: true,
 		transform: defaultFormatValue
 	};
-	if( typeof opts === 'function' ) {
-		return { ..._opts, transform: opts };
-	}
-	if( typeof opts.arrays !== 'undefined' && opts.arrays !== null ) {
-		_opts.preserveArrays = opts.arrays.preserve ?? _opts.preserveArrays;
-		_opts.allowSparseArrays = opts.arrays.sparse ?? _opts.allowSparseArrays;
-	}
+	if( typeof opts === 'function' ) { return { ..._opts, transform: opts } }
 	_opts.transform = opts.transform || _opts.transform;
+	if( typeof opts.arrays === 'undefined' || opts.arrays === null ) { return _opts }
+	if( typeof opts.arrays.preserve !== 'undefined' && opts.arrays.preserve !== null  ) {
+		_opts.preserveArrays = opts.arrays.preserve;
+	}
+	if( typeof opts.arrays.sparse !== 'undefined' && opts.arrays.sparse !== null  ) {
+		_opts.allowSparseArrays = opts.arrays.sparse;
+	}
 	return _opts;
 }
 
@@ -146,6 +149,7 @@ const condenseArraysIn = (() => {
 			if( isEmpty ){ numRemovables++ }
 			if( numRemovables === 0 ) { continue }
 			if( i === 0 ) {
+				// istanbul ignore next
 				arr.splice( isEmpty ? i : i + 1, numRemovables );
 				continue;
 			}

@@ -215,10 +215,10 @@ describe( 'utils module', () => {
 					) ).toEqual({ matrix: [ undefined, undefined, [ matrix20[ 0 ] ] ]	});
 				} );
 				describe( 'the "arrays.sparse" property', () => {
-					test.only( 'when "false" removes all unset elements in all arrays in the returned data', () => {
+					test( 'when "false" removes all unset elements in all arrays in the returned data', () => {
 						source = createSourceData();
 						source.matrix = [
-							[ [ 0, 3, 1 ], [ 4, 0, 3 ] ],
+							[ [ 0, 3, 1 ], [ 4, 0, 3 ], [ 0, 0, 0 ], [ 8, 9, 1 ], [ 2, 2, 2 ] ],
 							[ [ 4, 1, 9 ], [ 7, 4, 9 ] ],
 							[ [ 8, 7, 3 ], [ 0, 3, 1 ] ]
 						];
@@ -231,9 +231,13 @@ describe( 'utils module', () => {
 						) ).toEqual({ matrix: [ [ matrix11[ 1 ] ], [ matrix20[ 0 ] ] ] });
 						expect( utils.mapPathsToObject(
 							source,
-							[ 'matrix[2].0', 'matrix.1.1' ],
+							[ 'matrix[2].0', 'matrix.1.1', 'matrix[ 0 ][ 0 ]', 'matrix[ 0 ][ 1 ]', 'matrix[ 0 ][ 4 ]' ],
 							{ arrays: { preserve: true, sparse: false } }
-						) ).toEqual({ matrix: [ [ matrix11[ 1 ] ], [ matrix20[ 0 ] ] ] });
+						) ).toEqual({ matrix: [
+							[ [ 0, 3, 1 ], [ 4, 0, 3 ], [ 2, 2, 2 ] ],
+							[ matrix11[ 1 ] ],
+							[ matrix20[ 0 ] ]
+						] });
 						expect( utils.mapPathsToObject(
 							source,
 							[ 'matrix.1.1' ],
