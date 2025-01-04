@@ -28,6 +28,8 @@ const source = {
     tags: [ 'test', 'foo', 'bar', 'baz', 'boo', 'tap', 'bak' ]
 };
 
+// DEFAULT USAGE
+// -------------
 distill( source, [
     'matrix.1.1',
     'matrix[2].0',
@@ -55,6 +57,101 @@ distill( source, [
 // }
 
 ```
+
+### An Optional Parameter 3:
+This function also accepts an optional third parameter which may either be
+<ul>
+    <li>a transformation function or </li>
+    <li>an options object</li>
+</ul>
+<p>
+The transformation function is of the the type:<br />
+<code>&lt;T&gt;({ value } : PropertyInfo) : T => value;</code><br />
+This function is called on all values mapping to the provided property paths listed in the second argument.
+</p>
+<p>The options object is of the type:</p>
+
+<pre>
+{
+    arrays?: {
+        preserve?: boolean // defaults to false
+        sparse?: boolean // defaults to true
+    },
+    tranform?: &lt;T&gt;({ value } : PropertyInfo) : T => value;</code>
+}
+</pre>
+
+<table style="border:1px solid #bbb; border-width:1px 0;">
+    <thead>
+        <tr>
+            <th colspan="2" style="border-bottom:1px solid #bbb; font-size:20px; text-align:center;">
+                Available Options
+            </th> 
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td style="font-size:20px; text-align:left">Property</td>
+            <td style="font-size:20px; text-align:left">Description</td>
+        </tr>
+        <tr>
+            <td style="vertical-align:top">
+                <code>arrays</code>
+            </td>
+            <td>
+                dascribes the strategy for handling array types encountered durring the distillation process.
+            </td>
+            <tr>
+            <td></td>
+            <td>
+                <table>
+                    <thead>
+                        <tr>
+                            <th colspan="2" style="border-bottom:1px solid #bbb; font-size:18px; text-align:center;">
+                                Available <code>arrays</code> Options
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-size:20px; text-align:left">Property</td>
+                            <td style="font-size:20px; text-align:left">Description</td>
+                        </tr>
+                        <tr>
+                            <td style="vertical-align:top;">
+                                <code>preserve</code>
+                            </td>
+                            <td>
+                                when <code>true</code> will preserve properties of array types in the collected data and maintain the original indexes of values in the arrays.<br /><br />
+                                <u><strong>Note:</strong></u> altering the name of a propery within the distilled object will preclude that property, if an array, from array preservation.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="vertical-align:top">
+                                <code>sparse</code>
+                            </td>
+                            <td>
+                                when <code>false</code> will compact all arrays in the distilled data by removing all unused array elements.<br /><br />
+                                <u><strong>Note:</strong></u> tnis is active only when the <code>options.arrays.preserve</code> property is true.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+            </tr>
+        </tr>
+        <tr>
+            <td style="vertical-align:top">
+                <code>transform</code>
+            </td>
+            <td>serves the same function as the afore-described transformation function.</td>
+        </tr>
+    </tbody>
+</table>
+</p>
+
+
+<br /><br />
 
 # License
 MIT
