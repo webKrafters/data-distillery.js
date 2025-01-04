@@ -81,14 +81,11 @@ This function is called on all values mapping to the provided property paths lis
 }
 </pre>
 
+<div ALIGN="CENTER" style="border-top:1px solid #bbb; padding:4px; font-size:21px;">
+    Available  Options
+</div>
+
 <table style="border:0 solid #bbb; border-width:1px 0;">
-    <thead>
-        <tr>
-            <th colspan="2" style="border-bottom:1px solid #bbb; font-size:20px; text-align:center;">
-                Available Options
-            </th> 
-        </tr>
-    </thead>
     <tbody>
         <tr>
             <td style="font-size:20px; text-align:left">Property</td>
@@ -111,15 +108,10 @@ This function is called on all values mapping to the provided property paths lis
     </tbody>
 </table>
 
-
-<table style="border:0 solid #bbb; border-width:0 0 1px;">
-    <thead>
-        <tr>
-            <th colspan="2" style="border-bottom:1px solid #bbb; font-size:20px; text-align:center;">
-                Available <code>arrays</code> Options
-            </th>
-        </tr>
-    </thead>
+<div ALIGN="CENTER" style="padding:4px; font-size:21px;">
+    Available <code>arrays</code> Options
+</div>
+<table style="border:0 solid #bbb; border-width:1px 0;">
     <tbody>
         <tr>
             <td style="font-size:20px; text-align:left">Property</td>
@@ -139,8 +131,8 @@ This function is called on all values mapping to the provided property paths lis
                 <code>sparse</code>
             </td>
             <td>
-                when <code>false</code> will compact all arrays in the distilled data by removing all unused array elements.<br /><br />
-                <u><strong>Note:</strong></u> tnis is active only when the <code>options.arrays.preserve</code> property is true.
+                when <code>false</code> will compact all arrays in the distilled data by removing all <b><i><u>unassigned</u></i></b> array elements.<br /><br />
+                <u><strong>Note:</strong></u> this is active only when the <code>options.arrays.preserve</code> property is true.
             </td>
         </tr>
     </tbody>
