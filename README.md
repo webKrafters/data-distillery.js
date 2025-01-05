@@ -55,7 +55,6 @@ distill( source, [
 //     4: 'boo'
 //   }
 // }
-
 ```
 
 ### An Optional Parameter 3:
@@ -144,8 +143,109 @@ This function is called on all values mapping to the provided property paths lis
         </tr>
     </tbody>
 </table>
+<br />
 
-<br /><br />
+### Example: Property Tranformation.
+
+```jsx
+// USING SAME SOURCE OBJECT AS ABOVE USAGE
+// ---------------------------------------
+distill( source, [
+    'address',
+    'registered.timezone',
+    'tags[4]',
+    'matrix[0][1]'
+], function( p ) {
+    if( typeof p.value === 'string' || p.value instanceof String ) {
+        return p.value.toUpperCase();
+    }
+    return p.value;
+} );
+// returns distilled object => {
+//   matrix: { 0: { 1: [ 4, 0, 3 ] } },
+//   address: {
+//     city: 'Test City',
+//     state: 'My Province'
+//   },
+//   registered: {
+//     timezone: 'EASTERN TIME'
+//   },
+//   tags: {
+//     4: 'BOO'
+//   }
+// }
+```
+
+### Example: Array Preservation.
+
+```jsx
+// USING SAME SOURCE OBJECT AS IN PREVIOUS EXAMPLE.
+// ------------------------------------------------
+distill( source, [
+    'matrix.1.1',
+    'matrix[2].0',
+    'address',
+    'registered.timezone',
+    'tags[4]',
+    'matrix[0][1]'
+], {
+    arrays: {
+        preserve: true
+    }
+} );
+// returns distilled object => {
+//   matrix: [
+//    [ <empty>, [ 4, 0, 3 ] ],
+//    [ <empty>, [ 7, 4, 9 ] ],
+//    [ [ 8, 7, 3 ] ]
+//   ],
+//   address: {
+//     city: 'Test City',
+//     state: 'My Province'
+//   },
+//   registered: {
+//     timezone: 'EASTERN TIME'
+//   },
+//   tags: [ <empty>, <empty>, <empty>, <empty>, 'boo' ]
+// }
+```
+
+### Example: Array Compaction.
+
+```jsx
+// USING SAME SOURCE OBJECT AS IN PREVIOUS EXAMPLE.
+// ------------------------------------------------
+distill( source, [
+    'matrix.1.1',
+    'matrix[2].0',
+    'address',
+    'registered.timezone',
+    'tags[4]',
+    'matrix[0][1]'
+], {
+    arrays: {
+        preserve: true,
+        sparse: false
+    }
+}  );
+// returns distilled object => {
+//   matrix: [
+//    [ [ 4, 0, 3 ] ],
+//    [ [ 7, 4, 9 ] ],
+//    [ [ 8, 7, 3 ] ]
+//   ],
+//   address: {
+//     city: 'Test City',
+//     state: 'My Province'
+//   },
+//   registered: {
+//     timezone: 'EASTERN TIME'
+//   },
+//   tags: [ 'boo' ]
+// }
+```
+
+<br />
 
 # License
 MIT

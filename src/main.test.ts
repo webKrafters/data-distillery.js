@@ -155,6 +155,13 @@ describe( 'utils module', () => {
 				.toEqual({ matrix: { 2: matrix20 }	});
 		} );
 		describe( 'Third parameter', () => {
+			let transform;
+			beforeAll(() => {
+				transform =({ value }) =>
+					typeof value === 'string' || value instanceof String
+						? value.toLowerCase()
+						: value;
+			});
 			test( 'is optional: does not preserve array types (uses indexed object instead', () => {
 				source = createSourceData();
 				source.matrix = [
@@ -178,11 +185,25 @@ describe( 'utils module', () => {
 				utils.mapPathsToObject( createSourceData(), [ 'company', 'tags' ], transformMock );
 				expect( transformMock ).toHaveBeenCalledTimes( 2 );
 			});
+			test( 'can transforms property path values', () => {
+				const s = createSourceData();
+				const d = utils.mapPathsToObject( s, [ 'company', 'tags' ], transform );
+				expect( d.tags ).toEqual( s.tags );
+				expect( d.company ).not.toEqual( s.company );
+				expect( d.company ).toStrictEqual( s.company.toLowerCase() );
+			} );
 			describe( 'accepts an options object', () => {
-				test( 'accepts a "transform" property to apply to values at property paths', () => {
+				test( 'accepts a "transform" options property to apply to values at property paths', () => {
 					const transformMock = jest.fn() as utils.Transform;
 					utils.mapPathsToObject( createSourceData(), [ 'company', 'tags' ], { transform: transformMock });
 					expect( transformMock ).toHaveBeenCalledTimes( 2 );
+				} );
+				test( 'can transform property path values through this "transform" options property', () => {
+					const s = createSourceData();
+					const d = utils.mapPathsToObject( s, [ 'company', 'tags' ], { transform });
+					expect( d.tags ).toEqual( s.tags );
+					expect( d.company ).not.toEqual( s.company );
+					expect( d.company ).toStrictEqual( s.company.toLowerCase() );
 				} );
 				test( 'accepts an "arrays.preserve" property to preserve array types and indexing', () => {
 					source = createSourceData();
