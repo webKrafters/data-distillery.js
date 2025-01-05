@@ -94,7 +94,7 @@ This function is called on all values mapping to the provided property paths lis
             <td style="font-size:20px; text-align:left">Description</td>
         </tr>
         <tr>
-            <td style="VALIGN="TOP"">
+            <td VALIGN="TOP">
                 <code>arrays</code>
             </td>
             <td>
@@ -204,7 +204,7 @@ distill( source, [
 //     state: 'My Province'
 //   },
 //   registered: {
-//     timezone: 'EASTERN TIME'
+//     timezone: 'Eastern Time'
 //   },
 //   tags: [ <empty>, <empty>, <empty>, <empty>, 'boo' ]
 // }
@@ -239,7 +239,7 @@ distill( source, [
 //     state: 'My Province'
 //   },
 //   registered: {
-//     timezone: 'EASTERN TIME'
+//     timezone: 'Eastern Time'
 //   },
 //   tags: [ 'boo' ]
 // }
