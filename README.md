@@ -110,7 +110,7 @@ This function is called on all values mapping to the provided property paths lis
         </tr>
     </tbody>
 </table>
-<br/> <br />
+<br/>
 <table style="border:0 solid #bbb; border-width:1px 0;">
     <thead>
         <tr>
